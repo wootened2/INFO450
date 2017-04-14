@@ -1,0 +1,653 @@
+// FavoriteThing.cpp : Defines the entry point for the console application.
+//DVDs
+
+//Produced by Emily Wooten
+
+
+
+
+
+#include "stdafx.h"
+
+#include <iostream>
+
+#include <string>
+
+#include <fstream>
+
+#include <windows.h>
+
+#include <conio.h>
+
+#include <list>
+
+
+
+using namespace std;
+
+
+
+const int READERROR = 150;
+
+const int WRITEERROR = 300;
+
+const int ARRAYSIZE = 150;
+
+
+
+
+
+class Dvd
+
+{
+
+	string d_Title;
+
+	string dvd_genre;
+
+	int rating;
+
+	string dvdProducer;
+
+	string dvdDescription;
+
+	string runTime;
+
+	string characterName;
+
+
+
+
+
+public:
+
+	Dvd();
+
+	Dvd(string title, string genre, int rate, string producer, string description, string run, string character);
+
+	void capNewDvd();
+
+	void showDvd();
+
+	int saveDvd(ofstream& outfile);
+
+	bool sameDvd(Dvd* title);
+
+	friend class DvdList;
+
+};
+
+
+
+
+
+class DvdList
+
+{
+
+protected:
+
+	Dvd** list;
+
+	int numrecords;
+
+	int lSize;
+
+	int reallocateArray();
+
+
+
+public:
+
+	DvdList();
+
+	~DvdList();
+
+	void getInput();
+
+	void showList();
+
+	int s_List(string filename);
+
+	int r_List(string filename);
+
+	void addDvd();
+
+};
+
+
+
+
+
+Dvd::Dvd()
+
+{
+
+	d_Title = "";
+
+	characterName = "";
+
+	dvd_genre = "";
+
+	dvdDescription = "";
+
+	runTime = "";
+
+	rating;
+
+	dvdProducer = "";
+
+}
+
+
+
+
+
+Dvd::Dvd(string title, string genre, int rate, string producer, string description, string run, string character)
+
+{
+
+	d_Title = title;
+
+	characterName = character;
+
+	dvd_genre = genre;
+
+	dvdDescription = description;
+
+	runTime = run;
+
+	rating = rate;
+
+	dvdProducer = producer;
+
+}
+
+
+
+
+
+
+
+bool Dvd::sameDvd(Dvd* title)
+
+{
+
+	if (d_Title == title->d_Title && dvdProducer == title->dvdProducer)
+
+	{
+
+		return 1;
+
+	}
+
+	else
+
+	{
+
+		return 0;
+
+	}
+
+}
+
+
+
+
+
+void Dvd::capNewDvd()
+
+{
+
+	cout << "DVD Title: ";
+
+	getline(cin, d_Title);
+
+	cout << "DVD Genre: ";
+
+	getline(cin, dvd_genre);
+
+	cout << "Main Character Name: ";
+
+	getline(cin, characterName);
+
+	cout << "DVD Description: ";
+
+	getline(cin, dvdDescription);
+
+	cout << "Producer: ";
+
+	getline(cin, dvdProducer);
+
+	cout << "Run Time: ";
+
+	getline(cin, runTime);
+
+	cout << "Rating: ";
+
+	cin >> rating;
+
+	cin.ignore();
+
+	cin.clear();
+
+}
+
+
+
+
+
+void Dvd::showDvd()
+
+{
+
+	cout << "\n\t\t\t__________________________________\n" << endl;
+
+	cout << "\t\t DVD Title: " << d_Title << endl;
+
+	cout << "\t\t DVD Genre: " << dvd_genre << endl;
+
+	cout << "\t\t Main Character Name: " << characterName << endl;
+
+	cout << "\t\t DVD Description: " << dvdDescription << endl;
+
+	cout << "\t\t Producer: " << dvdDescription << endl;
+
+	cout << "\t\t Run Time: " << runTime << endl;
+
+	cout << "\t\t\t Rating: " << rating << endl;
+
+}
+
+
+
+
+
+
+
+int Dvd::saveDvd(ofstream& outfile)
+
+{
+
+	showDvd();
+
+	string ans;
+
+	cout << "Add DVD to list? Yes or No?" << endl;
+
+	cin >> ans;
+
+	cout << "\n" << endl;
+
+	if (outfile.is_open() && (ans == "Yes" || ans == "yes"))
+
+	{
+
+		outfile << d_Title << "|" << dvd_genre << "|" << characterName << "|" << dvdDescription << "|" << dvdProducer << "|" << runTime <<
+
+			"|" << rating << endl;
+
+		return 0;
+
+	}
+
+	else
+
+		return WRITEERROR;
+
+}
+
+
+
+
+
+DvdList::DvdList()
+
+{
+
+	list = new Dvd*[ARRAYSIZE];
+
+	numrecords = 0;
+
+	lSize = ARRAYSIZE;
+
+}
+
+
+
+
+
+
+
+DvdList::~DvdList()
+
+{
+
+	for (int i = 0; i < numrecords; i++)
+
+	{
+
+		delete list[i];
+
+	}
+
+	delete[]list;
+
+}
+
+
+
+
+
+
+
+int DvdList::reallocateArray()
+
+{
+
+	Dvd** temp;
+
+	temp = new Dvd*[lSize + ARRAYSIZE];
+
+	lSize = lSize + ARRAYSIZE;
+
+	for (int i = 0; i < numrecords; i++)
+
+	{
+
+		temp[i] = list[i];
+
+	}
+
+	delete[]list;
+
+	list = temp;
+
+	return 0;
+
+}
+
+
+
+
+
+void DvdList::addDvd()
+
+{
+
+	Dvd* myDvd;
+
+	myDvd = new Dvd();
+
+	bool found = false;
+
+
+
+	myDvd->capNewDvd();
+
+
+
+	for (int i = 0; i < numrecords; i++)
+
+	{
+
+		if (list[i]->sameDvd(myDvd))
+
+
+
+		{
+
+			cout << "\nDuplicate DVDs found! Please enter a new DVD" << endl;
+
+			found = true;
+
+		}
+
+	}
+
+	if (found == false)
+
+	{
+
+		list[numrecords] = myDvd;
+
+		numrecords++;
+
+	}
+
+}
+
+
+
+
+
+
+
+void DvdList::getInput()
+
+{
+
+	string answer = "Y";
+
+	cout << "\nEnter DVD? Yes or No" << endl;
+
+	getline(cin, answer);
+
+	while (answer == "Yes" || answer == "yes")
+
+	{
+
+		Dvd* myDvd = new Dvd();
+
+		addDvd();
+
+		cout << "\nEnter a new DVD? Yes or No" << endl;
+
+		getline(cin, answer);
+
+	}
+
+}
+
+
+
+
+
+void DvdList::showList()
+
+{
+
+	for (int i = 0; i < numrecords; i++)
+
+	{
+
+		list[i]->showDvd();
+
+	}
+
+}
+
+
+
+
+
+
+int DvdList::s_List(string filename)
+
+{
+
+	ofstream output(filename, ios::trunc);
+
+	if (output)
+
+	{
+
+		for (int i = 0; i < numrecords; i++)
+
+		{
+
+			list[i]->saveDvd(output);
+
+		}
+
+		output.close();
+
+	}
+
+	else
+
+	{
+
+		return WRITEERROR;
+
+	}
+
+
+
+	return 0;
+
+}
+
+
+
+
+
+int DvdList::r_List(string filename)
+
+{
+
+	string ititle, igenre, idesc, icharname, irun, iprod, irate;
+
+	int count = 0;
+
+	ifstream infile(filename, ios::in);
+
+	if (!infile)
+
+	{
+
+		cout << "ERROR: File could not be opened" << endl;
+
+		return READERROR;
+
+	}
+
+	while (!infile.eof())
+
+	{
+
+		if (numrecords == lSize)
+
+		{
+
+			reallocateArray();
+
+		}
+
+		getline(infile, ititle, '|');
+
+		if (!ititle.empty())
+
+		{
+
+			getline(infile, ititle, '|');
+
+			getline(infile, igenre, '|');
+
+			getline(infile, idesc, '|');
+
+			getline(infile, icharname, '|');
+
+			getline(infile, irun, '|');
+
+			getline(infile, iprod, '|');
+
+			getline(infile, irate);
+
+			int rate = stoi(irate);
+
+			list[numrecords] = new Dvd(ititle, igenre, rate, irun, idesc, icharname, iprod);
+
+			numrecords++;
+
+		}
+
+	}
+
+	infile.close();
+
+	return 0;
+
+}
+
+
+
+
+
+int main()
+
+{
+
+	DvdList my;
+
+
+
+	int error;
+
+	string answer;
+
+	string filename;
+
+
+
+	cout << "\t\t\t________________________________________________________________" << endl;
+
+	cout << "\t\tWelcome to your DVD Tracker!" << endl;
+
+	cout << "\t\tTo access your list,  use the file path where the text file" << endl;
+
+	cout << "\t\tis stored on your machine. Ex. C:\\Projects\\DvdList.txt" << endl;
+
+
+
+	cout << "\t\tEnter the full path of the file: " << endl;
+
+	getline(cin, filename);
+
+	ifstream file(filename);
+
+	error = my.r_List(filename);
+
+	if (error)
+
+	{
+
+		cout << "\t\t\t________________________________________________________________" << endl;
+
+		cout << "\t\tCannot read list" << endl;
+
+		cout << "\t\tPossible issues:" << endl;
+
+		cout << "\t\t1. Incorrect file name" << endl;
+
+		cout << "\t\t2. File does not exist " << endl;
+
+		cout << "\t\t3. Incorrect file path" << endl;
+
+
+
+		return 0;
+
+	}
+
+
+
+	my.getInput();
+
+	my.s_List(filename);
+
+	my.showList();
+
+	return 0;
+
+}
